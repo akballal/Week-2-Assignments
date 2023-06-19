@@ -16,10 +16,48 @@
 
     Testing the server - run `npm run test-fileServer` command in terminal
  */
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
+const express = require("express");
+const fs = require("fs");
+const path = require("path");
 const app = express();
+const port = 3000;
+const directoryPath =
+  "C:/Workspaces/Vscode_workspaces/Full_Stack_Course/Week-2-Assignments/02-nodejs/files";
 
+function started() {
+  console.log(`Example app listening on port ${port}`);
+}
+//app.listen(port, started);
+
+app.get("/files", listFilesFromDirectory);
+app.get("/file/:filename", getFileContent);
+
+function listFilesFromDirectory(req, res) {
+  fs.readdir(directoryPath, (error, files) => {
+    if (error) {
+      console.error("Error reading directory:", error);
+      res.status(500).send("Error reading directory");
+    }
+    var result = {
+      listOfFiles: files,
+    };
+    res.send(result);
+  });
+}
+
+function getFileContent(req, res) {
+  let filename = req.params.filename;
+  let filePath = `C:/Workspaces/Vscode_workspaces/Full_Stack_Course/Week-2-Assignments/02-nodejs/files/${filename}`;
+  fs.readFile(filePath, "utf8", (error, data) => {
+    if (error) {
+      res.status(404).send("File not found");
+    }
+    res.send(data);
+  });
+}
+
+app.use((req, res) => {
+  res.status(404).send("404 Not Found");
+});
 
 module.exports = app;

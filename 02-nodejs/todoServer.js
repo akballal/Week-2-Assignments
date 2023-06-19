@@ -39,11 +39,129 @@
 
   Testing the server - run `npm run test-todoServer` command in terminal
  */
-const express = require('express');
-const bodyParser = require('body-parser');
+const express = require("express");
+const bodyParser = require("body-parser");
+const fs = require("fs");
+const port = 3000;
+const fileDB =
+  "C:/Workspaces/Vscode_workspaces/Full_Stack_Course/Week-2-Assignments/02-nodejs/fileDB.json";
 
 const app = express();
-
+app.listen(port, () => console.log("App Started, listing on 3000 !!"));
 app.use(bodyParser.json());
+
+app.post("/todos", (req, res) => {
+  let dataArray = [];
+  const existingData = fs.readFileSync(fileDB, "utf8");
+  if (existingData !== "") {
+    dataArray = JSON.parse(existingData);
+  }
+  const reqBody = req.body;
+  console.log(reqBody);
+  const id = Math.floor(Math.random() * 100) + 1;
+  const JsonData = { id, ...reqBody };
+  console.log(JsonData);
+  dataArray.push(JsonData);
+  const updatedJsonData = JSON.stringify(dataArray);
+
+  fs.writeFile(fileDB, updatedJsonData, "utf8", (error) => {
+    if (error) {
+      res.status(404).send("File not found.");
+    }
+    console.log("Data has been written to the file.");
+    res.status(201).json({ id });
+  });
+});
+
+app.get('/todos', (req, res) => {
+  const existingData = fs.readFileSync(fileDB, "utf8");
+  if (existingData !== "") {
+    dataArray = JSON.parse(existingData);
+    res.send(dataArray)
+  }
+  else {
+    res.status(404).send("No Todos")
+  }
+})
+
+app.get('/todo/:id', (req, res) => {
+  const id = parseInt(req.params.id)
+  const existingData = fs.readFileSync(fileDB, "utf8");
+  if (existingData !== "") {
+    dataArray = JSON.parse(existingData);
+    IdFound = dataArray.find(obj => obj.id === id)
+    if (IdFound) {
+      res.send(IdFound)
+    }
+    else {
+      res.status(404).send('No matching id found')
+    }
+  }
+  else {
+    res.status(404).send("No Todos")
+  }
+})
+
+app.put('/todo/:id', (req, res) => {
+  const id = parseInt(req.params.id)
+  const existingData = fs.readFileSync(fileDB, "utf8");
+  if (existingData !== "") {
+    dataArray = JSON.parse(existingData);
+    IdFound = dataArray.find(obj => obj.id === id)
+    if (IdFound) {
+      const { title, description, completed } = req.body
+      IdFound.title = title
+      IdFound.description = description
+      IdFound.completed = completed
+
+      const updatedData = JSON.stringify(dataArray);
+      fs.writeFile(fileDB, updatedData, "utf8", (error) => {
+        if (error) {
+          res.status(404).send("File not found.");
+        }
+        console.log("Data has been written to the file.");
+        res.send(`Updated the ID - ${id}`);
+      });
+    }
+    else {
+      res.status(404).send('No matching id found')
+    }
+  }
+  else {
+    res.status(404).send("No Todos")
+  }
+})
+
+
+app.delete('/todo/:id', (req, res) => {
+  const id = parseInt(req.params.id)
+  const existingData = fs.readFileSync(fileDB, "utf8");
+  if (existingData !== "") {
+    dataArray = JSON.parse(existingData);
+    IdFound = dataArray.find(obj => obj.id === id)
+    if (IdFound) {
+      const updatedArray = dataArray.filter(obj => obj.id !== id);
+      const updatedData = JSON.stringify(updatedArray);
+      fs.writeFile(fileDB, updatedData, "utf8", (error) => {
+        if (error) {
+          res.status(404).send("File not found.");
+        }
+        console.log("Data has been written to the file.");
+        res.send(`Deleted the ID - ${id}`);
+      });
+    }
+    else {
+      res.status(404).send('No matching id found')
+    }
+  }
+  else {
+    res.status(404).send("No Todos")
+  }
+})
+
+app.use((req, res) => {
+  res.status(404).send("404 Not Found");
+});
+
 
 module.exports = app;
