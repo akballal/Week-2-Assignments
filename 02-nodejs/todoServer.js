@@ -58,7 +58,7 @@ app.post("/todos", (req, res) => {
   }
   const reqBody = req.body;
   console.log(reqBody);
-  const id = Math.floor(Math.random() * 100) + 1;
+  const id = Math.floor(Math.random() * 1000) + 1;
   const JsonData = { id, ...reqBody };
   console.log(JsonData);
   dataArray.push(JsonData);

@@ -32,6 +32,73 @@
 const express = require("express")
 const PORT = 3000;
 const app = express();
+const bodyParser = require("body-parser")
+const jwt = require("jsonwebtoken");
+const JWT_secret = "token_test";
+app.listen(PORT, () => { console.log("Server started on port 3000") })
 // write your logic here, DONT WRITE app.listen(3000) when you're running tests, the tests will automatically start the server
+app.use(bodyParser.json());
+let USERS = []
+
+app.post('/signup', (req, res) => {
+  const id = Math.floor(Math.random() * 1000) + 1;
+  const reqBody = req.body;
+  const JsonData = { id, ...reqBody };
+  const username = req.body.username
+  Userfound = USERS.find(obj => obj.username === username)
+  if (Userfound) {
+    res.status(400).send("username already exists")
+  }
+  else {
+    USERS.push(JsonData)
+    res.send("User Signed up successfully !!")
+  }
+})
+
+app.post('/login', (req, res) => {
+  const username = req.body.username
+  const password = req.body.password
+
+  USERS.forEach((user) => {
+    if (user.username === username) {
+      if (user.password === password) {
+        res.json(
+          {
+            token: jwt.sign(username, JWT_secret)
+          }
+        );
+      } else {
+        res.status(401).send("Password is incorrect.");
+      }
+    }
+  });
+  res.status(401).send("User doesn't exist, Sign up maybe ?");
+})
+module.exports = app;
+
+app.get('/data', (req, res) => {
+  const username = req.headers.username
+  const password = req.headers.password
+
+  USERS.forEach((user) => {
+    if (user.username === username) {
+      if (user.password === password) {
+        // Map the array to exclude username and password fields
+        const responseArray = USERS.map(obj => {
+          const { username, password, ...rest } = obj;
+          return rest;
+        });
+        res.send(responseArray)
+      } else {
+        res.status(401).send("Password is incorrect.");
+      }
+    }
+  });
+  res.status(401).send("User doesn't exist, Sign up maybe ?");
+})
+
+app.use((req, res) => {
+  res.status(404).send("404 Not Found");
+});
 
 module.exports = app;
