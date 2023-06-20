@@ -47,7 +47,7 @@ const fileDB =
   "C:/Workspaces/Vscode_workspaces/Full_Stack_Course/Week-2-Assignments/02-nodejs/fileDB.json";
 
 const app = express();
-app.listen(port, () => console.log("App Started, listing on 3000 !!"));
+//app.listen(port, () => console.log("App Started, listing on 3000 !!"));
 app.use(bodyParser.json());
 
 app.post("/todos", (req, res) => {
@@ -68,7 +68,6 @@ app.post("/todos", (req, res) => {
     if (error) {
       res.status(404).send("File not found.");
     }
-    console.log("Data has been written to the file.");
     res.status(201).json({ id });
   });
 });
@@ -84,7 +83,7 @@ app.get('/todos', (req, res) => {
   }
 })
 
-app.get('/todo/:id', (req, res) => {
+app.get('/todos/:id', (req, res) => {
   const id = parseInt(req.params.id)
   const existingData = fs.readFileSync(fileDB, "utf8");
   if (existingData !== "") {
@@ -102,7 +101,7 @@ app.get('/todo/:id', (req, res) => {
   }
 })
 
-app.put('/todo/:id', (req, res) => {
+app.put('/todos/:id', (req, res) => {
   const id = parseInt(req.params.id)
   const existingData = fs.readFileSync(fileDB, "utf8");
   if (existingData !== "") {
@@ -133,7 +132,7 @@ app.put('/todo/:id', (req, res) => {
 })
 
 
-app.delete('/todo/:id', (req, res) => {
+app.delete('/todos/:id', (req, res) => {
   const id = parseInt(req.params.id)
   const existingData = fs.readFileSync(fileDB, "utf8");
   if (existingData !== "") {

@@ -57,7 +57,7 @@ function getFileContent(req, res) {
 }
 
 app.use((req, res) => {
-  res.status(404).send("404 Not Found");
+  res.status(404).send("Route not found");
 });
 
 module.exports = app;
